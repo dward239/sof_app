@@ -1,0 +1,4 @@
+﻿nuclide,limit_value,limit_unit,category,rule_name,rule_rev
+Cs-137,2.0,Bq/g,mass,DemoRule,2025-01-01
+Co-60,1.0,Bq/g,mass,DemoRule,2025-01-01
+Sr-90,0.5,Bq/g,mass,DemoRule,2025-01-01

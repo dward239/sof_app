@@ -1,0 +1,15 @@
+﻿{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "LimitsTable",
+  "type": "object",
+  "properties": {
+    "nuclide": {"type": "string"},
+    "limit_value": {"type": "number"},
+    "limit_unit": {"type": "string"},
+    "category": {"type": "string"},
+    "rule_name": {"type": "string"},
+    "rule_rev": {"type": "string"},
+    "provenance": {"type": "string"}
+  },
+  "required": ["nuclide", "limit_value", "limit_unit"]
+}

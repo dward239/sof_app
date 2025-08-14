@@ -1,0 +1,9 @@
+﻿numpy>=1.24
+pandas>=2.0
+pydantic>=2.6
+pint>=0.23
+uncertainties>=3.1
+streamlit>=1.36
+openpyxl>=3.1
+matplotlib>=3.8
+pytest>=7.0
