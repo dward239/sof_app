@@ -4,18 +4,21 @@ import pandas as pd
 
 # Try PyQt6, fall back to PySide6 if needed
 try:
+#PyQt6 Block
     from PyQt6.QtWidgets import (
         QApplication, QWidget, QLabel, QPushButton, QLineEdit, QFileDialog,
         QGridLayout, QMessageBox, QTableWidget, QTableWidgetItem, QHeaderView,
-        QCheckBox, QSpinBox, QComboBox
+        QCheckBox, QSpinBox, QComboBox, QDoubleSpinBox
     )
     from PyQt6.QtCore import Qt, QUrl
     from PyQt6.QtGui import QGuiApplication, QDesktopServices
 except ModuleNotFoundError:
+
+#PySide6 fallback block
     from PySide6.QtWidgets import (
         QApplication, QWidget, QLabel, QPushButton, QLineEdit, QFileDialog,
         QGridLayout, QMessageBox, QTableWidget, QTableWidgetItem, QHeaderView,
-        QCheckBox, QSpinBox, QComboBox
+        QCheckBox, QSpinBox, QComboBox, QDoubleSpinBox
     )
     from PySide6.QtCore import Qt, QUrl
     from PySide6.QtGui import QGuiApplication, QDesktopServices
@@ -204,6 +207,17 @@ class SofQt(QWidget):
         self.spin_sig.valueChanged.connect(self._maybe_autorecompute)
         grid.addWidget(self.spin_sig, row, 1); row += 1
 
+        # Amber Warning Threshold
+        grid.addWidget(QLabel("Warn threshold (amber if SOF ≥):"), row, 0)
+        self.spin_warn = QDoubleSpinBox(self)
+        self.spin_warn.setRange(0.0, 1.0)
+        self.spin_warn.setDecimals(2)
+        self.spin_warn.setSingleStep(0.01)
+        self.spin_warn.setValue(0.90)  # default
+        self.spin_warn.valueChanged.connect(lambda _=None: (self.populate_ui() if self.summary is not None else None))
+        self.spin_warn.valueChanged.connect(self._maybe_autorecompute)
+        grid.addWidget(self.spin_warn, row, 1); row += 1
+
         # Buttons
         self.btn_compute = QPushButton("Compute SOF", self); self.btn_compute.clicked.connect(self.compute)
         grid.addWidget(self.btn_compute, row, 0)
@@ -225,7 +239,8 @@ class SofQt(QWidget):
 
         # --- CSV format tip + link ---
         self.csv_tip = QLabel(
-            "CSV/Excel headers — Samples: nuclide, value, unit[, sigma];  "
+            "CSV/Excel headers"
+            "Samples: nuclide, value, unit[, sigma];  "
             "Limits: nuclide, limit_value, limit_unit[, category].  "
             "Units like MBq or dpm/100 cm^2; counts (cpm/cps) are not allowed."
         )
@@ -279,6 +294,14 @@ class SofQt(QWidget):
                 self.chk_combine.setChecked(bool(s.get("combine_duplicates", True)))
                 self.chk_missing_zero.setChecked(bool(s.get("treat_missing_as_zero", True)))
                 self.spin_sig.setValue(int(s.get("display_sigfigs", 4)))
+                # Warn threshold
+                wt = s.get("warn_threshold", None)
+                if wt is not None:
+                    try:
+                        self.spin_warn.setValue(float(wt))
+                    except Exception:
+                        pass
+
                 # If limits exists, populate categories and restore selection
                 if self.limits_path and os.path.isfile(self.limits_path):
                     self._populate_categories_from_limits(self.limits_path, select=s.get("category"))
@@ -294,6 +317,8 @@ class SofQt(QWidget):
             "treat_missing_as_zero": self.chk_missing_as_zero.isChecked() if hasattr(self, "chk_missing_as_zero") else self.chk_missing_zero.isChecked(),
             "display_sigfigs": int(self.spin_sig.value()),
             "category": category if category is not None else (None if self.cat_combo.currentIndex()<=0 else self.cat_combo.currentText().strip()),
+            "warn_threshold": float(self.spin_warn.value()),
+
         }
         try:
             with open(SETTINGS_PATH, "w", encoding="utf-8") as f:
@@ -451,6 +476,20 @@ class SofQt(QWidget):
             traceback.print_exc()
             QMessageBox.critical(self, "Error", f"{type(e).__name__}: {e}")
 
+    def _banner_colors(self, passed: bool, sof_total: float, warn_threshold: float) -> tuple[str, str]:
+        """
+        3-state banner:
+        - Red if SOF > 1.0
+        - Amber if passed and SOF >= warn_threshold
+        - Green otherwise
+        """
+        if not passed:
+            return "#b71c1c", "white"      # red
+        if sof_total >= warn_threshold:
+            return "#f57c00", "black"      # amber
+        return "#1b5e20", "white"          # green
+    
+
     def populate_ui(self):
         
         s = self.summary or {}
@@ -460,10 +499,11 @@ class SofQt(QWidget):
             f"Margin: {s.get('margin_to_1', float('nan')):.4g}"
         )
 
-        passed = bool(s.get('pass_limit', False))
-        # Colors you like; tweak as desired
-        bg = "#1b5e20" if passed else "#b71c1c"     # green / red
-        fg = "white"
+        passed = bool(s.get("pass_limit", False))
+        sof_total = float(s.get("sof_total", float("nan")))
+        warn_threshold = float(self.spin_warn.value()) if hasattr(self, "spin_warn") else 0.90
+
+        bg, fg = self._banner_colors(passed, sof_total, warn_threshold)
         self.lbl_summary.setStyleSheet(
             f"padding: 10px; border-radius: 8px; background-color: {bg}; color: {fg};"
         )
@@ -527,32 +567,42 @@ class SofQt(QWidget):
 
 
     # ----- utilities -----
+    # ----- utilities -----
     def save_csv(self):
-        if self.per_nuclide_df is None: return
+        if self.per_nuclide_df is None:
+            return
         path, _ = QFileDialog.getSaveFileName(self, "Save CSV", "per_nuclide.csv", "CSV (*.csv)")
         if path:
             self.per_nuclide_df.to_csv(path, index=False)
             QMessageBox.information(self, "Saved", f"Saved {path}")
 
     def save_audit(self):
-        if self.summary is None: return
+        if self.summary is None:
+            return
         path, _ = QFileDialog.getSaveFileName(self, "Save Audit JSON", "audit.json", "JSON (*.json)")
         if path:
             cat = None if self.cat_combo.currentIndex() <= 0 else self.cat_combo.currentText().strip()
-            write_audit(path, inputs={
-                "samples_path": os.path.abspath(self.samples_path),
-                "limits_path": os.path.abspath(self.limits_path),
-                "category": cat,
-                "options": {
-                    "combine_duplicates": self.chk_combine.isChecked(),
-                    "treat_missing_as_zero": self.chk_missing_zero.isChecked(),
-                    "display_sigfigs": int(self.spin_sig.value())
-                }
-            }, results={"summary": self.summary})
+            write_audit(
+                path,
+                inputs={
+                    "samples_path": os.path.abspath(self.samples_path),
+                    "limits_path": os.path.abspath(self.limits_path),
+                    "alias_path": os.getenv("SOF_ALIAS_PATH"),
+                    "category": cat,
+                    "options": {
+                        "combine_duplicates": self.chk_combine.isChecked(),
+                        "treat_missing_as_zero": self.chk_missing_zero.isChecked(),
+                        "display_sigfigs": int(self.spin_sig.value()),
+                        "warn_threshold": float(self.spin_warn.value()),
+                    },
+                },
+                results={"summary": self.summary},
+            )
             QMessageBox.information(self, "Saved", f"Saved {path}")
 
     def copy_table(self):
-        if self.per_nuclide_df is None: return
+        if self.per_nuclide_df is None:
+            return
         csv = self.per_nuclide_df.to_csv(index=False)
         QGuiApplication.clipboard().setText(csv)
         QMessageBox.information(self, "Copied", "Per-nuclide table copied to clipboard (CSV).")
@@ -560,6 +610,7 @@ class SofQt(QWidget):
     def open_results(self):
         os.makedirs("results", exist_ok=True)
         QDesktopServices.openUrl(QUrl.fromLocalFile(os.path.abspath("results")))
+
 
 def main():
     app = QApplication(sys.argv)
