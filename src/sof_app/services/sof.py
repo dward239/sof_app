@@ -23,14 +23,14 @@ VERSION = "0.1.1"
 # Expanded detection of counts-like strings (friendly error before units layer raises)
 _COUNTS_PAT = re.compile(
     r"""
-    (?ix)
     \b(?:cpm|cps)\b
-    | \bcounts?\b
-        (?:\s*(?:/|per)\s*(?:min(?:ute)?|s(?:ec(?:ond)?)?))?
-    | \bcounts?\s*(?:min|s)\s*(?:\^-?1|[- ]?1)?
-    | \bcount\s*/\s*(?:min|s)\b
+  | \bcount(?:s)?\s*/\s*(?:min(?:ute)?|s(?:ec(?:ond)?)?)\b
+  | \bcount(?:s)?\s*per\s*(?:min(?:ute)?|s(?:ec(?:ond)?)?)\b
+  | \bcount(?:s)?\s*(?:min|s)\s*(?:-?1|\^-?1)\b
     """,
+    re.IGNORECASE | re.VERBOSE,
 )
+
 
 _REQUIRED_S_COLS: Sequence[str] = ("nuclide", "value", "unit")
 _REQUIRED_L_COLS: Sequence[str] = ("nuclide", "limit_value", "limit_unit")

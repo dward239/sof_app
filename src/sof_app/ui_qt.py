@@ -1,5 +1,5 @@
 ﻿from __future__ import annotations
-import sys, os, json, traceback
+import sys, os, json, traceback, math
 import pandas as pd
 
 # Try PyQt6, fall back to PySide6 if needed
@@ -20,9 +20,55 @@ except ModuleNotFoundError:
     from PySide6.QtCore import Qt, QUrl
     from PySide6.QtGui import QGuiApplication, QDesktopServices
 
+# ---- Numeric sorting helper  ----
+class NumericItem(QTableWidgetItem):
+    """
+    QTableWidgetItem that sorts by a numeric key (Qt.UserRole).
+    NaNs are pushed to the end when sorting ascending.
+    """
+    def __init__(self, value: float, text: str | None = None, nan_high: bool = True):
+        if text is None:
+            if value is None or (isinstance(value, float) and math.isnan(value)):
+                text = ""
+            else:
+                text = str(value)
+        super().__init__(text)
+        # numeric sort key
+        try:
+            v = float(value)
+        except Exception:
+            v = float("nan")
+        if math.isnan(v):
+            v_sort = float("inf") if nan_high else float("-inf")
+        else:
+            v_sort = v
+        self.setData(Qt.ItemDataRole.UserRole, v_sort)
+        self.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+
+    def __lt__(self, other: QTableWidgetItem) -> bool:
+        try:
+            a = float(self.data(Qt.ItemDataRole.UserRole))
+            b = float(other.data(Qt.ItemDataRole.UserRole))
+            return a < b
+        except Exception:
+            return super().__lt__(other)
+
 from sof_app.io.excel_loader import load_samples, load_limits
 from sof_app.services.sof import compute_sof
 from sof_app.services.audit import write_audit
+
+def _num_from_display(val) -> float:
+    """Extract leading numeric token from '123.4 unit' for sorting."""
+    if val is None or (isinstance(val, float) and math.isnan(val)):
+        return float("nan")
+    s = str(val).strip()
+    if not s:
+        return float("nan")
+    head = s.split()[0].replace(",", "")
+    try:
+        return float(head)  # handles 1e6, 1e+06, etc.
+    except Exception:
+        return float("nan")
 
 SETTINGS_PATH = os.path.join(os.path.expanduser("~"), ".sof_app_settings.json")
 
@@ -113,6 +159,23 @@ class SofQt(QWidget):
         self.btn_open_results = QPushButton("Open results folder", self); self.btn_open_results.clicked.connect(self.open_results)
         grid.addWidget(self.btn_open_results, row, 2); row += 1
 
+        # --- CSV format tip + link ---
+        self.csv_tip = QLabel(
+            "CSV/Excel headers — Samples: nuclide, value, unit[, sigma];  "
+            "Limits: nuclide, limit_value, limit_unit[, category].  "
+            "Units like MBq or dpm/100 cm^2; counts (cpm/cps) are not allowed."
+        )
+        self.csv_tip.setWordWrap(True)
+        self.csv_tip.setStyleSheet("color: gray; font-size: 11px;")
+        grid.addWidget(self.csv_tip, row, 0, 1, 2)
+
+        self.btn_csv_tips = QPushButton("View examples…", self)
+        self.btn_csv_tips.setFlat(True)
+        self.btn_csv_tips.setStyleSheet("color:#1a73e8; text-decoration: underline; border: none;")
+        self.btn_csv_tips.clicked.connect(self.show_csv_tips)
+        grid.addWidget(self.btn_csv_tips, row, 2)
+        row += 1
+
         # Summary
         self.lbl_summary = QLabel("SOF: —   Pass: —   Margin: —", self)
         grid.addWidget(self.lbl_summary, row, 0, 1, 3); row += 1
@@ -153,7 +216,7 @@ class SofQt(QWidget):
             "samples_path": self.samples_path,
             "limits_path": self.limits_path,
             "combine_duplicates": self.chk_combine.isChecked(),
-            "treat_missing_as_zero": self.chk_missing_zero.isChecked(),
+            "treat_missing_as_zero": self.chk_missing_as_zero.isChecked() if hasattr(self, "chk_missing_as_zero") else self.chk_missing_zero.isChecked(),
             "display_sigfigs": int(self.spin_sig.value()),
             "category": category if category is not None else (None if self.cat_combo.currentIndex()<=0 else self.cat_combo.currentText().strip()),
         }
@@ -204,6 +267,86 @@ class SofQt(QWidget):
                     self.cat_combo.setCurrentIndex(idx+1)  # +1 for (none)
         except Exception as e:
             QMessageBox.warning(self, "Limits read", f"Could not read categories: {e}")
+            
+
+    def show_csv_tips(self):
+            # Works with PyQt6 or PySide6
+            try:
+                from PyQt6.QtWidgets import (
+                    QDialog, QVBoxLayout, QHBoxLayout, QTextBrowser, QPlainTextEdit, QPushButton, QLabel
+                )
+                from PyQt6.QtGui import QFontDatabase
+            except ModuleNotFoundError:
+                from PySide6.QtWidgets import (
+                    QDialog, QVBoxLayout, QHBoxLayout, QTextBrowser, QPlainTextEdit, QPushButton, QLabel
+                )
+                from PySide6.QtGui import QFontDatabase
+
+            # Header + bullets as HTML (theme friendly)
+            html = """
+            <h3 style="margin-top:0">CSV / Excel format tips</h3>
+            <p><b>Samples</b> (required): <code>nuclide, value, unit</code> &nbsp;&nbsp;
+            <i>optional</i>: <code>sigma</code> (1-σ, same unit as <code>value</code>)</p>
+            <p><b>Limits</b> (required): <code>nuclide, limit_value, limit_unit</code> &nbsp;&nbsp;
+            <i>optional</i>: <code>category, rule_name, note</code></p>
+            <ul style="margin-top:8px">
+            <li>Units: activity (<code>Bq</code>, <code>MBq</code>, <code>Ci</code>, <code>dpm</code>), dose/rate (<code>mSv/h</code>, <code>mrem/h</code>), time (<code>h</code>, <code>yr</code>).</li>
+            <li>Surface contamination like <code>dpm/100 cm^2</code> is auto-normalized to <code>Bq/m^2</code>.</li>
+            <li><b>Counts are blocked</b> (<code>cpm</code>/<code>cps</code>/<code>counts</code>): convert to activity first.</li>
+            </ul>
+            """
+
+            ex_samples = (
+                "nuclide,value,unit,sigma\n"
+                "Cs-137,1.0,MBq,0.05\n"
+                "Co-60,600,\"dpm/100 cm^2\",\n"
+            )
+            ex_limits = (
+                "nuclide,limit_value,limit_unit,category,rule_name\n"
+                "Cs-137,4.0,MBq,General,My Limits v1\n"
+                "Co-60,2000,Bq/m^2,General,My Limits v1\n"
+            )
+
+            dlg = QDialog(self)
+            dlg.setWindowTitle("CSV format tips")
+            layout = QVBoxLayout(dlg)
+
+            header = QTextBrowser(dlg)
+            header.setReadOnly(True)
+            header.setHtml(html)
+            layout.addWidget(header)
+
+            fixed = QFontDatabase.systemFont(QFontDatabase.SystemFont.FixedFont)
+
+            def add_example(title: str, text: str, copy_label: str):
+                layout.addWidget(QLabel(f"<b>{title}</b>"))
+                edit = QPlainTextEdit(dlg)
+                edit.setReadOnly(True)
+                edit.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
+                edit.setFont(fixed)
+                edit.setPlainText(text)
+                # Dark-theme friendly; switch to light if you prefer
+                edit.setStyleSheet("QPlainTextEdit { background: #161b22; color: #e6edf3; border: 1px solid #444; }")
+                edit.setMinimumHeight(120)
+                layout.addWidget(edit)
+
+                row = QHBoxLayout()
+                row.addStretch(1)
+                btn = QPushButton(copy_label, dlg)
+                btn.clicked.connect(lambda: QGuiApplication.clipboard().setText(edit.toPlainText()))
+                row.addWidget(btn)
+                layout.addLayout(row)
+
+            add_example("Example — Samples", ex_samples, "Copy Samples")
+            add_example("Example — Limits",  ex_limits,  "Copy Limits")
+
+            btn_close = QPushButton("Close", dlg)
+            btn_close.clicked.connect(dlg.accept)
+            layout.addWidget(btn_close)
+
+            dlg.resize(820, 560)
+            dlg.exec()
+
 
     # ----- compute & UI update -----
     def _maybe_autorecompute(self, *args):
@@ -240,17 +383,64 @@ class SofQt(QWidget):
             f"Pass: {s.get('pass_limit', False)}   "
             f"Margin: {s.get('margin_to_1', float('nan')):.4g}"
         )
+
         df = self.per_nuclide_df if self.per_nuclide_df is not None else pd.DataFrame()
-        self.table.setRowCount(len(df))
         cols = ["nuclide","conc_display","limit_display","fraction","fraction_sigma","allowed_additional_in_limit_units"]
+
+        # Remember current sort state (so user click persists)
+        header = self.table.horizontalHeader()
+        prev_col = header.sortIndicatorSection()
+        prev_ord = header.sortIndicatorOrder()
+
+        self.table.setSortingEnabled(False)
+        self.table.setRowCount(len(df))
+
         for r in range(len(df)):
             for c, col in enumerate(cols):
                 val = df.iloc[r][col]
-                text = f"{val:.4g}" if isinstance(val, float) else str(val)
-                self.table.setItem(r, c, QTableWidgetItem(text))
+
+                if col in ("fraction", "fraction_sigma", "allowed_additional_in_limit_units"):
+                    # numeric with pretty text
+                    if col == "fraction" and "fraction_display" in df.columns:
+                        txt = str(df.iloc[r]["fraction_display"])
+                        try:
+                            vfloat = float(df.iloc[r]["fraction"])
+                        except Exception:
+                            vfloat = float("nan")
+                    else:
+                        try:
+                            vfloat = float(val)
+                            txt = "" if (isinstance(vfloat, float) and math.isnan(vfloat)) else f"{vfloat:.4g}"
+                        except Exception:
+                            vfloat, txt = float("nan"), ""
+                    self.table.setItem(r, c, NumericItem(vfloat, txt))
+
+                elif col in ("conc_display", "limit_display"):
+                    # parse number for sorting; prefer raw numeric columns if present
+                    txt = "" if pd.isna(val) else str(val)
+                    if col == "conc_display" and "value_conv" in df.columns:
+                        vfloat = float(df.iloc[r]["value_conv"])
+                    elif col == "limit_display" and "limit_value_base" in df.columns:
+                        vfloat = float(df.iloc[r]["limit_value_base"])
+                    else:
+                        vfloat = _num_from_display(txt)
+                    self.table.setItem(r, c, NumericItem(vfloat, txt))
+
+                else:
+                    # plain text (nuclide)
+                    item = QTableWidgetItem("" if pd.isna(val) else str(val))
+                    self.table.setItem(r, c, item)
+
+        self.table.setSortingEnabled(True)
+
+        # restore previous sort (if any)
+        if prev_col >= 0:
+            self.table.sortItems(prev_col, prev_ord)
+
         self.btn_save_csv.setEnabled(not df.empty)
         self.btn_save_audit.setEnabled(self.summary is not None)
         self.btn_copy_table.setEnabled(not df.empty)
+
 
     # ----- utilities -----
     def save_csv(self):
