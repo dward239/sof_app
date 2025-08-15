@@ -214,8 +214,10 @@ class SofQt(QWidget):
         self.spin_warn.setDecimals(2)
         self.spin_warn.setSingleStep(0.01)
         self.spin_warn.setValue(0.90)  # default
-        self.spin_warn.valueChanged.connect(lambda _=None: (self.populate_ui() if self.summary is not None else None))
         self.spin_warn.valueChanged.connect(self._maybe_autorecompute)
+        
+        #Optional banner recolor w/o calc.
+        self.spin_warn.valueChanged.connect(lambda _=None: (self.populate_ui() if self.summary is not None else None))
         grid.addWidget(self.spin_warn, row, 1); row += 1
 
         # Buttons
@@ -296,11 +298,14 @@ class SofQt(QWidget):
                 self.spin_sig.setValue(int(s.get("display_sigfigs", 4)))
                 # Warn threshold
                 wt = s.get("warn_threshold", None)
-                if wt is not None:
-                    try:
-                        self.spin_warn.setValue(float(wt))
-                    except Exception:
-                        pass
+                try:
+                    wtv = float(wt) if wt is not None else None
+                except Exception:
+                    wtv = None
+                if wt is not None or wtv <= 0.0:
+                    self.spin_warn.setvalue(0.90)
+                else:
+                    self.spin_warn.setValue(wtv)
 
                 # If limits exists, populate categories and restore selection
                 if self.limits_path and os.path.isfile(self.limits_path):
@@ -566,7 +571,6 @@ class SofQt(QWidget):
         self.btn_copy_table.setEnabled(not df.empty)
 
 
-    # ----- utilities -----
     # ----- utilities -----
     def save_csv(self):
         if self.per_nuclide_df is None:

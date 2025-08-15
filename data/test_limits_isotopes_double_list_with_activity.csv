@@ -1,5 +1,5 @@
 nuclide,limit_value,limit_unit,category,rule_name,rule_rev
-Cs-137,300000,Ci,,,
+Cs-137,200000,Ci,,,
 Gd-153,300000,Ci,,,
 I-125,300000,Ci,,,
 Ac-227,300000,Ci,,,
