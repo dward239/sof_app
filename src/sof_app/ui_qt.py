@@ -97,6 +97,67 @@ class DropLineEdit(QLineEdit):
                 self._on_drop(local)
 
 class SofQt(QWidget):
+    
+    def validate_inputs(self):
+        try:
+            if not self.samples_path or not self.limits_path:
+                QMessageBox.information(self, "Validate inputs", "Select both Samples and Limits files first.")
+                return
+
+            # Load (re-using your loaders so Excel/CSV both work)
+            samples = load_samples(self.samples_path)
+            limits  = load_limits(self.limits_path)
+
+            problems = []
+
+            # Required columns
+            req_s = {"nuclide", "value", "unit"}
+            req_l = {"nuclide", "limit_value", "limit_unit"}
+            miss_s = req_s - set(samples.columns)
+            miss_l = req_l - set(limits.columns)
+            if miss_s:
+                problems.append(f"- Samples missing columns: {sorted(miss_s)}")
+            if miss_l:
+                problems.append(f"- Limits missing columns: {sorted(miss_l)}")
+
+            # Empty/blank nuclide names
+            if "nuclide" in samples.columns:
+                n_blank = samples["nuclide"].astype(str).str.strip().eq("").sum()
+                if n_blank:
+                    problems.append(f"- Samples has {n_blank} blank nuclide name(s).")
+
+            # Duplicate canonical nuclides in limits (simple check on raw names)
+            if "nuclide" in limits.columns:
+                dup = limits["nuclide"].astype(str).str.strip().value_counts()
+                dup = dup[dup > 1]
+                if not dup.empty:
+                    problems.append(f"- Limits has duplicate nuclides (raw names): {', '.join(dup.index[:10])}"
+                                    + (" …" if len(dup) > 10 else ""))
+
+            # Counts units sanity check (cpm/cps/count)
+            if "unit" in samples.columns:
+                ustr = samples["unit"].astype(str).str.lower()
+                mask = ustr.str.contains(r"\bcpm\b|\bcps\b|count", regex=True)
+                if mask.any():
+                    ex = samples.loc[mask, "unit"].astype(str).unique()
+                    problems.append(f"- Counts units detected in samples: {', '.join(ex[:6])}"
+                                    + (" …" if len(ex) > 6 else "")
+                                    + " (convert to activity first, e.g., dpm or Bq).")
+
+            # Surface /100 cm^2 hint
+            if "unit" in samples.columns:
+                if samples["unit"].astype(str).str.contains(r"/\s*100\s*cm\^?2|\*\*2", regex=True).any():
+                    problems.append("- Note: surface units like dpm/100 cm^2 will be auto-normalized to Bq/m^2.")
+
+            if problems:
+                QMessageBox.warning(self, "Validate inputs", "Issues found:\n\n" + "\n".join(problems))
+            else:
+                QMessageBox.information(self, "Validate inputs", "Looks good ✅")
+        except Exception as e:
+            traceback.print_exc()
+            QMessageBox.critical(self, "Validate inputs", f"{type(e).__name__}: {e}")
+
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("SOF Calculator (Desktop) — v0.1.1")
@@ -147,6 +208,9 @@ class SofQt(QWidget):
         self.btn_compute = QPushButton("Compute SOF", self); self.btn_compute.clicked.connect(self.compute)
         grid.addWidget(self.btn_compute, row, 0)
 
+        self.btn_validate = QPushButton("Validate Inputs", self); self.btn_validate.clicked.connect(self.validate_inputs)
+        grid.addWidget(self.btn_validate, row, 1)
+
         self.btn_save_csv = QPushButton("Save CSV…", self); self.btn_save_csv.clicked.connect(self.save_csv); self.btn_save_csv.setEnabled(False)
         grid.addWidget(self.btn_save_csv, row, 1)
 
@@ -176,9 +240,20 @@ class SofQt(QWidget):
         grid.addWidget(self.btn_csv_tips, row, 2)
         row += 1
 
-        # Summary
+        # Summary (big banner)
         self.lbl_summary = QLabel("SOF: —   Pass: —   Margin: —", self)
+        self.lbl_summary.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        # Bigger, bold font
+        f = self.lbl_summary.font()
+        f.setPointSize(18)        # <-- change size here
+        f.setBold(True)
+        self.lbl_summary.setFont(f)
+
+        # Base styling (bg color is set later in populate_ui)
+        self.lbl_summary.setStyleSheet("padding: 10px; border-radius: 8px;")
         grid.addWidget(self.lbl_summary, row, 0, 1, 3); row += 1
+
 
         # Table
         self.table = QTableWidget(self)
@@ -377,11 +452,20 @@ class SofQt(QWidget):
             QMessageBox.critical(self, "Error", f"{type(e).__name__}: {e}")
 
     def populate_ui(self):
+        
         s = self.summary or {}
         self.lbl_summary.setText(
             f"SOF: {s.get('sof_total', float('nan')):.4g}   "
             f"Pass: {s.get('pass_limit', False)}   "
             f"Margin: {s.get('margin_to_1', float('nan')):.4g}"
+        )
+
+        passed = bool(s.get('pass_limit', False))
+        # Colors you like; tweak as desired
+        bg = "#1b5e20" if passed else "#b71c1c"     # green / red
+        fg = "white"
+        self.lbl_summary.setStyleSheet(
+            f"padding: 10px; border-radius: 8px; background-color: {bg}; color: {fg};"
         )
 
         df = self.per_nuclide_df if self.per_nuclide_df is not None else pd.DataFrame()
