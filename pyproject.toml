@@ -1,4 +1,8 @@
-﻿[project]
+﻿[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
 name = "sof-app"
 version = "0.1.0"
 description = "Sum of Fractions (SOF) calculator (limits vs measured concentrations)"
@@ -11,5 +15,9 @@ dependencies = [
   "uncertainties>=3.1",
   "streamlit>=1.36",
   "openpyxl>=3.1",
-  "matplotlib>=3.8",
+  "matplotlib>=3.8"
 ]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
