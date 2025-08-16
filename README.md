@@ -1,5 +1,8 @@
 ﻿# SOF Method App
 
+![CI](https://github.com/dward239/sof_app/actions/workflows/ci.yml/badge.svg?branch=main)
+
+
 An auditable **desktop (PyQt6)** application that computes **Sum of Fractions (SOF)** for mixtures of radionuclides against a selected limits table. Designed for screening/engineering use with clear assumptions, unit rigor, and an audit trail.
 
 > **Safety**: This tool is for planning/compliance screening. **All outputs require qualified professional review** before operational use or regulatory submittal.
