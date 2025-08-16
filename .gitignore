@@ -189,3 +189,10 @@ cython_debug/
 .cursorindexingignore
 # Keep our PyInstaller spec
 !SOF_Method_App.spec
+
+#Arch Tracking
+repo_tree.txt
+tree_ci.txt
+tree_data.txt
+tree_src.txt
+tree_test.txt
