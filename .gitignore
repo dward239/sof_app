@@ -191,8 +191,6 @@ cython_debug/
 !SOF_Method_App.spec
 
 #Arch Tracking
-repo_tree.txt
-tree_ci.txt
-tree_data.txt
-tree_src.txt
-tree_tests.txt
+repo_tree*.txt
+repo_manifest.json
+src_tree*.txt
