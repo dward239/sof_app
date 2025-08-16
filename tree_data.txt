@@ -1,0 +1,14 @@
+﻿Folder PATH listing for volume Windows
+Volume serial number is C074-9DF2
+C:\SOF_APP\DATA
+|   example_limits.csv
+|   example_samples.csv
+|   nuclide_aliases.csv
+|   test_limits.csv
+|   test_limits_isotopes_double_list_with_activity.csv
+|   test_random_isotopes_activity.csv
+|   test_samples.csv
+|   
+\---schema
+        limits_schema.json
+        
