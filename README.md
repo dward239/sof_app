@@ -277,3 +277,10 @@ TBD (internal/private for now).
 ---
 
 **Disclaimer**: This is a screening-level engineering tool. **Professional review is required** before operational use or regulatory submittal.
+## Responsible Use
+
+This tool is intended for screening-level engineering/compliance workflows.
+Results require qualified professional review before operational or regulatory use.
+Counts units (counts/cpm/cps) must be converted to activity using an appropriate
+efficiency/geometry method outside this app.
+
