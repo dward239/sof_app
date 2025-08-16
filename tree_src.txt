@@ -1,0 +1,48 @@
+﻿Folder PATH listing for volume Windows
+Volume serial number is C074-9DF2
+C:\USERS\DYLAN\DOCUMENTS\SOF_CALCULATOR\SOF_APP\SRC\SOF_APP
+|   ui_qt.py
+|   version.py
+|   __init__.py
+|   
++---assets
+|   \---icons
+|           sof_trefoil.ico
+|           
++---core
+|   |   exceptions.py
+|   |   models.py
+|   |   units.py
+|   |   
+|   \---__pycache__
+|           exceptions.cpython-313.pyc
+|           models.cpython-313.pyc
+|           units.cpython-313.pyc
+|           
++---io
+|   |   excel_loader.py
+|   |   exporters.py
+|   |   
+|   \---__pycache__
+|           excel_loader.cpython-313.pyc
+|           exporters.cpython-313.pyc
+|           
++---services
+|   |   aliases.py
+|   |   audit.py
+|   |   matching.py
+|   |   sof.py
+|   |   
+|   \---__pycache__
+|           aliases.cpython-313.pyc
+|           audit.cpython-313.pyc
+|           matching.cpython-313.pyc
+|           sof.cpython-313.pyc
+|           
++---ui
+|       app.py
+|       
+\---__pycache__
+        version.cpython-313.pyc
+        __init__.cpython-313.pyc
+        

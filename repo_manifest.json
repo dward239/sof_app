@@ -1,0 +1,352 @@
+﻿[
+    {
+        "RelPath":  ".github",
+        "Name":  ".github",
+        "Length":  null,
+        "LastWriteTime":  "\/Date(1755285801442)\/",
+        "Type":  "dir"
+    },
+    {
+        "RelPath":  "data",
+        "Name":  "data",
+        "Length":  null,
+        "LastWriteTime":  "\/Date(1755294590103)\/",
+        "Type":  "dir"
+    },
+    {
+        "RelPath":  "src",
+        "Name":  "src",
+        "Length":  null,
+        "LastWriteTime":  "\/Date(1755180474096)\/",
+        "Type":  "dir"
+    },
+    {
+        "RelPath":  "tests",
+        "Name":  "tests",
+        "Length":  null,
+        "LastWriteTime":  "\/Date(1755285648847)\/",
+        "Type":  "dir"
+    },
+    {
+        "RelPath":  ".gitattributes",
+        "Name":  ".gitattributes",
+        "Length":  66,
+        "LastWriteTime":  "\/Date(1755212385449)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  ".gitignore",
+        "Name":  ".gitignore",
+        "Length":  3992,
+        "LastWriteTime":  "\/Date(1755280931997)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "pyproject.toml",
+        "Name":  "pyproject.toml",
+        "Length":  490,
+        "LastWriteTime":  "\/Date(1755285627907)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "pyproject.toml.bak",
+        "Name":  "pyproject.toml.bak",
+        "Length":  515,
+        "LastWriteTime":  "\/Date(1755285225016)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "README.md",
+        "Name":  "README.md",
+        "Length":  8163,
+        "LastWriteTime":  "\/Date(1755287024255)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "repo_tree.txt",
+        "Name":  "repo_tree.txt",
+        "Length":  1184977,
+        "LastWriteTime":  "\/Date(1755308320795)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "requirements.txt",
+        "Name":  "requirements.txt",
+        "Length":  138,
+        "LastWriteTime":  "\/Date(1755119791903)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "Run SOF Desktop.bat",
+        "Name":  "Run SOF Desktop.bat",
+        "Length":  103,
+        "LastWriteTime":  "\/Date(1755181066442)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "run_desktop.ps1",
+        "Name":  "run_desktop.ps1",
+        "Length":  329,
+        "LastWriteTime":  "\/Date(1755204661343)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "sof-app-desktop.spec",
+        "Name":  "sof-app-desktop.spec",
+        "Length":  729,
+        "LastWriteTime":  "\/Date(1755181524834)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  ".github\\workflows",
+        "Name":  "workflows",
+        "Length":  null,
+        "LastWriteTime":  "\/Date(1755285801524)\/",
+        "Type":  "dir"
+    },
+    {
+        "RelPath":  ".github\\workflows\\ci.yml",
+        "Name":  "ci.yml",
+        "Length":  649,
+        "LastWriteTime":  "\/Date(1755285801524)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "data\\schema",
+        "Name":  "schema",
+        "Length":  null,
+        "LastWriteTime":  "\/Date(1755119791996)\/",
+        "Type":  "dir"
+    },
+    {
+        "RelPath":  "data\\example_limits.csv",
+        "Name":  "example_limits.csv",
+        "Length":  142,
+        "LastWriteTime":  "\/Date(1755268303550)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "data\\example_samples.csv",
+        "Name":  "example_samples.csv",
+        "Length":  52,
+        "LastWriteTime":  "\/Date(1755268270791)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "data\\nuclide_aliases.csv",
+        "Name":  "nuclide_aliases.csv",
+        "Length":  41564,
+        "LastWriteTime":  "\/Date(1755209082316)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "data\\test_limits.csv",
+        "Name":  "test_limits.csv",
+        "Length":  184,
+        "LastWriteTime":  "\/Date(1755183719788)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "data\\test_limits_isotopes_double_list_with_activity.csv",
+        "Name":  "test_limits_isotopes_double_list_with_activity.csv",
+        "Length":  2114,
+        "LastWriteTime":  "\/Date(1755294590089)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "data\\test_random_isotopes_activity.csv",
+        "Name":  "test_random_isotopes_activity.csv",
+        "Length":  990,
+        "LastWriteTime":  "\/Date(1755269878140)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "data\\test_samples.csv",
+        "Name":  "test_samples.csv",
+        "Length":  71,
+        "LastWriteTime":  "\/Date(1755183719719)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "data\\schema\\limits_schema.json",
+        "Name":  "limits_schema.json",
+        "Length":  465,
+        "LastWriteTime":  "\/Date(1755119791996)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "src\\sof_app",
+        "Name":  "sof_app",
+        "Length":  null,
+        "LastWriteTime":  "\/Date(1755306843968)\/",
+        "Type":  "dir"
+    },
+    {
+        "RelPath":  "src\\sof_app\\assets",
+        "Name":  "assets",
+        "Length":  null,
+        "LastWriteTime":  "\/Date(1755306843968)\/",
+        "Type":  "dir"
+    },
+    {
+        "RelPath":  "src\\sof_app\\core",
+        "Name":  "core",
+        "Length":  null,
+        "LastWriteTime":  "\/Date(1755179606769)\/",
+        "Type":  "dir"
+    },
+    {
+        "RelPath":  "src\\sof_app\\io",
+        "Name":  "io",
+        "Length":  null,
+        "LastWriteTime":  "\/Date(1755121871380)\/",
+        "Type":  "dir"
+    },
+    {
+        "RelPath":  "src\\sof_app\\services",
+        "Name":  "services",
+        "Length":  null,
+        "LastWriteTime":  "\/Date(1755202873927)\/",
+        "Type":  "dir"
+    },
+    {
+        "RelPath":  "src\\sof_app\\ui",
+        "Name":  "ui",
+        "Length":  null,
+        "LastWriteTime":  "\/Date(1755119791975)\/",
+        "Type":  "dir"
+    },
+    {
+        "RelPath":  "src\\sof_app\\ui_qt.py",
+        "Name":  "ui_qt.py",
+        "Length":  28779,
+        "LastWriteTime":  "\/Date(1755307690514)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "src\\sof_app\\version.py",
+        "Name":  "version.py",
+        "Length":  51,
+        "LastWriteTime":  "\/Date(1755200740963)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "src\\sof_app\\__init__.py",
+        "Name":  "__init__.py",
+        "Length":  22,
+        "LastWriteTime":  "\/Date(1755119791926)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "src\\sof_app\\assets\\icons",
+        "Name":  "icons",
+        "Length":  null,
+        "LastWriteTime":  "\/Date(1755306951790)\/",
+        "Type":  "dir"
+    },
+    {
+        "RelPath":  "src\\sof_app\\assets\\icons\\sof_trefoil.ico",
+        "Name":  "sof_trefoil.ico",
+        "Length":  1208952,
+        "LastWriteTime":  "\/Date(1755306799997)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "src\\sof_app\\core\\exceptions.py",
+        "Name":  "exceptions.py",
+        "Length":  338,
+        "LastWriteTime":  "\/Date(1755202898480)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "src\\sof_app\\core\\models.py",
+        "Name":  "models.py",
+        "Length":  1341,
+        "LastWriteTime":  "\/Date(1755119791943)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "src\\sof_app\\core\\units.py",
+        "Name":  "units.py",
+        "Length":  4716,
+        "LastWriteTime":  "\/Date(1755285007849)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "src\\sof_app\\io\\excel_loader.py",
+        "Name":  "excel_loader.py",
+        "Length":  2122,
+        "LastWriteTime":  "\/Date(1755119791945)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "src\\sof_app\\io\\exporters.py",
+        "Name":  "exporters.py",
+        "Length":  249,
+        "LastWriteTime":  "\/Date(1755119791959)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "src\\sof_app\\services\\aliases.py",
+        "Name":  "aliases.py",
+        "Length":  3272,
+        "LastWriteTime":  "\/Date(1755204569103)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "src\\sof_app\\services\\audit.py",
+        "Name":  "audit.py",
+        "Length":  2273,
+        "LastWriteTime":  "\/Date(1755294064397)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "src\\sof_app\\services\\matching.py",
+        "Name":  "matching.py",
+        "Length":  1203,
+        "LastWriteTime":  "\/Date(1755119791968)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "src\\sof_app\\services\\sof.py",
+        "Name":  "sof.py",
+        "Length":  9696,
+        "LastWriteTime":  "\/Date(1755289729651)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "src\\sof_app\\ui\\app.py",
+        "Name":  "app.py",
+        "Length":  2310,
+        "LastWriteTime":  "\/Date(1755119791977)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "tests\\conftest.py",
+        "Name":  "conftest.py",
+        "Length":  128,
+        "LastWriteTime":  "\/Date(1755285303814)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "tests\\test_matching.py",
+        "Name":  "test_matching.py",
+        "Length":  317,
+        "LastWriteTime":  "\/Date(1755119791982)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "tests\\test_sof.py",
+        "Name":  "test_sof.py",
+        "Length":  847,
+        "LastWriteTime":  "\/Date(1755119791988)\/",
+        "Type":  "file"
+    },
+    {
+        "RelPath":  "tests\\test_units.py",
+        "Name":  "test_units.py",
+        "Length":  3273,
+        "LastWriteTime":  "\/Date(1755285437496)\/",
+        "Type":  "file"
+    }
+]

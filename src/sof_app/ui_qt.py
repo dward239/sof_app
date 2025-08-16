@@ -1,6 +1,18 @@
 ﻿from __future__ import annotations
+from pathlib import Path
 import sys, os, json, traceback, math
 import pandas as pd
+
+def _resource_path(*parts) -> Path:
+    """
+    Return an absolute Path to a bundled resource.
+    Works in dev and in PyInstaller (sys._MEIPASS) mode.
+    """
+    base = getattr(sys, "_MEIPASS", None)
+    if base:
+        return Path(base, *parts)
+    return Path(__file__).resolve().parent.joinpath(*parts)
+
 
 # Try PyQt6, fall back to PySide6 if needed
 try:
@@ -11,7 +23,7 @@ try:
         QCheckBox, QSpinBox, QComboBox, QDoubleSpinBox
     )
     from PyQt6.QtCore import Qt, QUrl
-    from PyQt6.QtGui import QGuiApplication, QDesktopServices
+    from PyQt6.QtGui import QGuiApplication, QDesktopServices, QIcon
 except ModuleNotFoundError:
 
 #PySide6 fallback block
@@ -21,7 +33,7 @@ except ModuleNotFoundError:
         QCheckBox, QSpinBox, QComboBox, QDoubleSpinBox
     )
     from PySide6.QtCore import Qt, QUrl
-    from PySide6.QtGui import QGuiApplication, QDesktopServices
+    from PySide6.QtGui import QGuiApplication, QDesktopServices, QIcon
 
 # ---- Numeric sorting helper  ----
 class NumericItem(QTableWidgetItem):
@@ -618,7 +630,26 @@ class SofQt(QWidget):
 
 def main():
     app = QApplication(sys.argv)
+
+    # --- Windows: set AppUserModelID BEFORE creating/showing windows ---
+    if sys.platform.startswith("win"):
+        try:
+            import ctypes
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("dward239.SOF.App")
+        except Exception:
+            pass
+
+    # --- App/window icon ---
+    icon_path = _resource_path("assets", "icons", "sof_trefoil.ico")
+    if icon_path.is_file():
+        app.setWindowIcon(QIcon(str(icon_path)))
+
     w = SofQt()
+
+    # Also set directly on the window (helps on some setups)
+    if icon_path.is_file():
+        w.setWindowIcon(QIcon(str(icon_path)))
+
     w.resize(900, 600)
     w.show()
     sys.exit(app.exec())
