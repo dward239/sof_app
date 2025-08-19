@@ -1,4 +1,3 @@
-﻿include LICENSE
+include LICENSE
 include NOTICE
-include THIRD_PARTY_LICENSES.txt
 recursive-include src/sof_app/assets *
