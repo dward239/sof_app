@@ -193,8 +193,8 @@ cython_debug/
 #Arch Tracking
 tree_*.txt
 repo_tree*.txt
-tree_ci.txt
-tree_data.txt
+tree_ci*.txt
+tree_data*.txt
 repo_manifest.json
 tree_src*.txt
-tree_tests.txt
+tree_tests*.txt
