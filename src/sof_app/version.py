@@ -1,2 +1,2 @@
-﻿__app_name__ = "sof-app"
-__version__ = "0.1.1"
+__app_name__ = "sof-app"
+$10.1.4"
