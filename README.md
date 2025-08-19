@@ -194,7 +194,6 @@ C:\sof_app\.github\workflows\ci.yml
 
 * Runs on **Windows** for Python **3.10–3.12**
 * Installs package and runs **pytest** on every push/PR
-* CI badge omitted while this repo is private (add it later if you make the repo public)
 
 Push a change to trigger CI:
 
@@ -211,7 +210,7 @@ git push
 
 * Example data and the nuclide alias map live in: `C:\sof_app\data`
 * Alias CSV: `C:\sof_app\data\nuclide_aliases.csv`
-* To refresh aliases within a session, restart the app (future idea: add “Reload aliases” button + unmapped names popup).
+* To refresh aliases within a session, restart the app
 
 ---
 

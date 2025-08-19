@@ -1,27 +1,2 @@
-﻿SOF Method App
-Copyright (c) 2025 Dylan Ward and contributors
+SOF Method App
 
-This product is licensed under the Apache License, Version 2.0.
-
-This product bundles or depends on third-party components. Their licenses are reproduced
-in THIRD_PARTY_LICENSES.txt (distributed with releases). When a dependency provides a
-NOTICE file, its required notice is included below.
-
-Notices:
-- NumPy — BSD-3-Clause
-- pandas — BSD-3-Clause
-- matplotlib — PSF-style license
-- Pint — BSD-3-Clause
-- pydantic — MIT
-- uncertainties — BSD-3-Clause
-- PyInstaller bootloader — GPL-2.0 with exception (packaging tool)
-- (Icon) sof_trefoil.ico — <your statement: “Created by <you>” OR license/attribution>
-
-PyQt6 licensing note:
-PyQt6 is GPL-3.0/commercial. If you distribute binaries that include PyQt6, you must
-comply with GPL-3. Consider one of:
-  (A) Keep PyQt6 and distribute under GPL-3 terms (your repo can stay Apache, but the
-      shipped binary must satisfy GPL-3 obligations), or
-  (B) Switch to PySide6 (LGPL-3) to keep permissive distribution under Apache-2.0, or
-  (C) Obtain a commercial PyQt license.
-Consult your counsel for the right path.
