@@ -1,5 +1,5 @@
-﻿[build-system]
-requires = ["setuptools>=77", "wheel"]
+[build-system]
+requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,8 +7,6 @@ name = "sof-app"
 version = "0.1.2"
 description = "Sum of Fractions (SOF) calculator (limits vs measured concentrations)"
 requires-python = ">=3.10"
-license = "Apache-2.0"
-license-files = ["LICENSE", "NOTICE"]
 dependencies = [
   "numpy>=1.24",
   "pandas>=2.0",
@@ -17,6 +15,10 @@ dependencies = [
   "uncertainties>=3.1",
   "openpyxl>=3.1",
   "matplotlib>=3.8"
+]
+license = { file = "LICENSE" }
+classifiers = [
+  "License :: OSI Approved :: Apache Software License"
 ]
 
 [tool.setuptools]
