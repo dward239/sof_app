@@ -14,26 +14,57 @@ def _resource_path(*parts) -> Path:
     return Path(__file__).resolve().parent.joinpath(*parts)
 
 
-# Try PyQt6, fall back to PySide6 if needed
-try:
-#PyQt6 Block
-    from PyQt6.QtWidgets import (
-        QApplication, QWidget, QLabel, QPushButton, QLineEdit, QFileDialog,
-        QGridLayout, QMessageBox, QTableWidget, QTableWidgetItem, QHeaderView,
-        QCheckBox, QSpinBox, QComboBox, QDoubleSpinBox
-    )
-    from PyQt6.QtCore import Qt, QUrl
-    from PyQt6.QtGui import QGuiApplication, QDesktopServices, QIcon
-except ModuleNotFoundError:
+from sof_app.version import __version__
 
-#PySide6 fallback block
-    from PySide6.QtWidgets import (
-        QApplication, QWidget, QLabel, QPushButton, QLineEdit, QFileDialog,
-        QGridLayout, QMessageBox, QTableWidget, QTableWidgetItem, QHeaderView,
-        QCheckBox, QSpinBox, QComboBox, QDoubleSpinBox
-    )
-    from PySide6.QtCore import Qt, QUrl
-    from PySide6.QtGui import QGuiApplication, QDesktopServices, QIcon
+# Prefer PySide6 (LGPL). Allow explicit opt-in to PyQt6 via env.
+BINDING = os.getenv("SOF_QT_BINDING", "pyside6").lower()
+USING_PYQT = False
+
+if BINDING == "pyqt6":
+    try:
+        from PyQt6.QtWidgets import (
+            QApplication, QWidget, QLabel, QPushButton, QLineEdit, QFileDialog,
+            QGridLayout, QMessageBox, QTableWidget, QTableWidgetItem, QHeaderView,
+            QCheckBox, QSpinBox, QComboBox, QDoubleSpinBox
+        )
+        from PyQt6.QtCore import Qt, QUrl
+        from PyQt6.QtGui import QGuiApplication, QDesktopServices, QIcon
+        USING_PYQT = True
+    except ModuleNotFoundError:
+        # fall back to PySide6 if PyQt6 not available
+        from PySide6.QtWidgets import (
+            QApplication, QWidget, QLabel, QPushButton, QLineEdit, QFileDialog,
+            QGridLayout, QMessageBox, QTableWidget, QTableWidgetItem, QHeaderView,
+            QCheckBox, QSpinBox, QComboBox, QDoubleSpinBox
+        )
+        from PySide6.QtCore import Qt, QUrl
+        from PySide6.QtGui import QGuiApplication, QDesktopServices, QIcon
+else:
+    try:
+        # default path: PySide6
+        from PySide6.QtWidgets import (
+            QApplication, QWidget, QLabel, QPushButton, QLineEdit, QFileDialog,
+            QGridLayout, QMessageBox, QTableWidget, QTableWidgetItem, QHeaderView,
+            QCheckBox, QSpinBox, QComboBox, QDoubleSpinBox
+        )
+        from PySide6.QtCore import Qt, QUrl
+        from PySide6.QtGui import QGuiApplication, QDesktopServices, QIcon
+    except ModuleNotFoundError:
+        # as last resort, try PyQt6 (GPL)
+        from PyQt6.QtWidgets import (
+            QApplication, QWidget, QLabel, QPushButton, QLineEdit, QFileDialog,
+            QGridLayout, QMessageBox, QTableWidget, QTableWidgetItem, QHeaderView,
+            QCheckBox, QSpinBox, QComboBox, QDoubleSpinBox
+        )
+        from PyQt6.QtCore import Qt, QUrl
+        from PyQt6.QtGui import QGuiApplication, QDesktopServices, QIcon
+        USING_PYQT = True
+        print(
+            "WARNING: Falling back to PyQt6 (GPL-3). "
+            "Set SOF_QT_BINDING=pyside6 to prefer the LGPL binding.",
+            file=sys.stderr,
+        )
+
 
 # ---- Numeric sorting helper  ----
 class NumericItem(QTableWidgetItem):
@@ -175,7 +206,7 @@ class SofQt(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("SOF Calculator (Desktop) — v0.1.1")
+        self.setWindowTitle(f"SOF Calculator (Desktop) — v{__version__}")
         self.samples_path = ""
         self.limits_path  = ""
         self.per_nuclide_df = None
@@ -233,6 +264,7 @@ class SofQt(QWidget):
         grid.addWidget(self.spin_warn, row, 1); row += 1
 
         # Buttons
+
         self.btn_compute = QPushButton("Compute SOF", self); self.btn_compute.clicked.connect(self.compute)
         grid.addWidget(self.btn_compute, row, 0)
 
@@ -240,16 +272,19 @@ class SofQt(QWidget):
         grid.addWidget(self.btn_validate, row, 1)
 
         self.btn_save_csv = QPushButton("Save CSV…", self); self.btn_save_csv.clicked.connect(self.save_csv); self.btn_save_csv.setEnabled(False)
-        grid.addWidget(self.btn_save_csv, row, 1)
+        grid.addWidget(self.btn_save_csv, row, 2)
+        row += 1
 
         self.btn_save_audit = QPushButton("Save Audit JSON…", self); self.btn_save_audit.clicked.connect(self.save_audit); self.btn_save_audit.setEnabled(False)
-        grid.addWidget(self.btn_save_audit, row, 2); row += 1
+        grid.addWidget(self.btn_save_audit, row, 0)
 
-        # Utilities
         self.btn_copy_table = QPushButton("Copy table to clipboard", self); self.btn_copy_table.clicked.connect(self.copy_table); self.btn_copy_table.setEnabled(False)
         grid.addWidget(self.btn_copy_table, row, 1)
+
         self.btn_open_results = QPushButton("Open results folder", self); self.btn_open_results.clicked.connect(self.open_results)
-        grid.addWidget(self.btn_open_results, row, 2); row += 1
+        grid.addWidget(self.btn_open_results, row, 2)
+        row += 1
+
 
         # --- CSV format tip + link ---
         self.csv_tip = QLabel(
@@ -314,8 +349,8 @@ class SofQt(QWidget):
                     wtv = float(wt) if wt is not None else None
                 except Exception:
                     wtv = None
-                if wt is not None or wtv <= 0.0:
-                    self.spin_warn.setvalue(0.90)
+                if wtv is None or not (0.0 < wtv <= 1.0):
+                    self.spin_warn.setValue(0.90)
                 else:
                     self.spin_warn.setValue(wtv)
 
@@ -331,7 +366,7 @@ class SofQt(QWidget):
             "samples_path": self.samples_path,
             "limits_path": self.limits_path,
             "combine_duplicates": self.chk_combine.isChecked(),
-            "treat_missing_as_zero": self.chk_missing_as_zero.isChecked() if hasattr(self, "chk_missing_as_zero") else self.chk_missing_zero.isChecked(),
+            "treat_missing_as_zero": self.chk_missing_zero.isChecked(),
             "display_sigfigs": int(self.spin_sig.value()),
             "category": category if category is not None else (None if self.cat_combo.currentIndex()<=0 else self.cat_combo.currentText().strip()),
             "warn_threshold": float(self.spin_warn.value()),

@@ -3,7 +3,7 @@
 ![CI](https://github.com/dward239/sof_app/actions/workflows/ci.yml/badge.svg?branch=main)
 
 
-An auditable **desktop (PyQt6)** application that computes **Sum of Fractions (SOF)** for mixtures of radionuclides against a selected limits table. Designed for screening/engineering use with clear assumptions, unit rigor, and an audit trail.
+An auditable **desktop (PyQt6 or PySide6)** application that computes **Sum of Fractions (SOF)** for mixtures of radionuclides against a selected limits table. Designed for screening/engineering use with clear assumptions, unit rigor, and an audit trail.
 
 > **Safety**: This tool is for planning/compliance screening. **All outputs require qualified professional review** before operational use or regulatory submittal.
 > **Counts (`counts`, `cpm`, `cps`) are intentionally blocked in conversions** — convert counts → activity via a dedicated efficiency/geometry method before using SOF.
@@ -18,7 +18,7 @@ C:\sof_app
 
 ---
 
-## Features (v0.1.1 locked)
+## Features (v0.1.4)
 
 * **SOF compute** vs. limits table with unit conversion.
 * Optional **combine duplicates**; **treat missing as zero**.
@@ -26,7 +26,7 @@ C:\sof_app
 * **Nuclide alias map** loaded from `SOF_ALIAS_PATH` (10 CFR 71 App A-based + lab aliases).
 * **Canonicalization** of names (e.g., `Cs137` → `Cs-137`).
 * **Audit JSON** includes app version & inputs for reproducibility.
-* **Desktop UI (PyQt6)** with drag–drop file paths, options, and a **big summary banner** (SOF / Pass / Margin; green/red).
+* **Desktop UI (PyQt6 or PySide6)** with drag–drop file paths, options, and a **big summary banner** (SOF / Pass / Margin; green/red).
 * **Units library** with curated radiological conversions:
 
   * Activity: `Bq`, `kBq`, `MBq`, `GBq`, `TBq`, `Ci`, `mCi`, `uCi`, `nCi`, `pCi`, `dpm`
@@ -35,8 +35,6 @@ C:\sof_app
   * Time: `s`, `min`, `h`, `d`, `yr`
   * **Surface contamination**: inputs like `MBq/100 cm^2` auto-normalized to **Bq/m²**
 * **Counts/cpm/cps blocked** in parse/convert (safety).
-
-> Working copy may be `0.1.2-dev` if you’ve bumped locally.
 
 ---
 
@@ -63,6 +61,12 @@ C:\sof_app
 
 * **Python 3.10–3.12**
 * **Windows PowerShell** (commands below use full paths)
+* **One Qt binding**: install **PyQt6** (recommended) *or* **PySide6**
+  ```powershell
+  pip install PyQt6
+  # or
+  pip install PySide6
+
 
 ---
 
@@ -73,19 +77,24 @@ C:\sof_app
 python -m venv C:\sof_app\.venv
 . C:\sof_app\.venv\Scripts\Activate.ps1
 
-# 2) Editable install (uses pyproject.toml)
+# 2) Install a Qt binding (one of these)
+pip install PyQt6
+# or: pip install PySide6
+
+# 3) Editable install (uses pyproject.toml)
 pip install -e C:\sof_app
+
 ```
 
 ---
 
-## Run the desktop app (PyQt6)
+## Run the desktop app (PyQt6 / PySide6)
 
-**Option A — Direct**
+**Option A — Installed Package**
 
 ```powershell
 . C:\sof_app\.venv\Scripts\Activate.ps1
-python C:\sof_app\src\sof_app\ui_qt.py
+python -m sof_app.ui_qt
 ```
 
 **Option B — Helper script (sets `SOF_ALIAS_PATH`)**
@@ -95,14 +104,16 @@ python C:\sof_app\src\sof_app\ui_qt.py
 Set-ExecutionPolicy -Scope Process Bypass
 powershell -ExecutionPolicy Bypass -File C:\sof_app\run_desktop.ps1
 ```
-
-> **Alias file path** (default):
-> `C:\sof_app\data\nuclide_aliases.csv`
-> `run_desktop.ps1` sets:
->
-> ```powershell
-> $env:SOF_ALIAS_PATH = "C:\sof_app\data\nuclide_aliases.csv"
+. C:\sof_app\.venv\Scripts\Activate.ps1
+Set-ExecutionPolicy -Scope Process Bypass
+powershell -ExecutionPolicy Bypass -File C:\sof_app\run_desktop.ps1
 > ```
+
+**Option C - From Repo File (dev)**
+
+. C:\sof_app\.venv\Scripts\Activate.ps1
+python C:\sof_app\src\sof_app\ui_qt.py
+
 
 ---
 
@@ -246,7 +257,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sof-app"
-version = "0.1.0"
+version = "0.1.4"
 requires-python = ">=3.10"
 
 [tool.pytest.ini_options]
