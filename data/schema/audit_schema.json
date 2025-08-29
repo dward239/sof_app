@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SOF Audit Record",
+  "type": "object",
+  "required": ["inputs", "results"],
+  "properties": {
+    "version":   { "type": ["string","null"] },
+    "timestamp": { "type": ["string","null"], "format": "date-time" },
+
+    "inputs": {
+      "type": "object",
+      "required": ["samples_path", "limits_path", "options"],
+      "properties": {
+        "samples_path": { "type": "string" },
+        "limits_path":  { "type": "string" },
+        "alias_path":   { "type": ["string","null"] },
+        "category":     { "type": ["string","null"] },
+        "options": {
+          "type": "object",
+          "required": ["combine_duplicates","treat_missing_as_zero","display_sigfigs","warn_threshold"],
+          "properties": {
+            "combine_duplicates":   { "type": "boolean" },
+            "treat_missing_as_zero":{ "type": "boolean" },
+            "display_sigfigs":      { "type": "integer" },
+            "warn_threshold":        { "type": "number" }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+
+    "results": {
+      "type": "object",
+      "required": ["summary"],
+      "properties": {
+        "summary": {
+          "type": "object",
+          "properties": {
+            "sof_total":   { "type": "number" },
+            "pass_limit":  { "type": "boolean" },
+            "margin_to_1": { "type": "number" }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}
