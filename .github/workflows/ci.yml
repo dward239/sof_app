@@ -1,33 +1,95 @@
-name: CI
-permissions:
-  contents: read
+﻿name: CI
 
 on:
   push:
+    branches: [ main, develop, "feature/**" ]
   pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
 
 jobs:
-  test:
+  test-build:
     runs-on: windows-latest
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ['3.10', '3.11', '3.12']
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+        python-version: ["3.10", "3.11", "3.12"]
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: "pip"
 
-      - name: Install deps
+      - name: Install deps (editable)
+        shell: pwsh
         run: |
-          python -m pip install -U pip
-          # Install your package (pyproject-based) and pytest
-          python -m pip install -e . pytest
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install pytest build pyinstaller cyclonedx-bom pip-licenses
+
       - name: Run tests
-        env:
-          PYTHONPATH: src
+        run: pytest -q tests
+
+      - name: Resolve entry script and icon
+        shell: pwsh
+        id: resolve
         run: |
-          pytest -q
+          $entry = if (Test-Path "sof_app\ui_qt.py") { "sof_app\ui_qt.py" } elseif (Test-Path "src\sof_app\ui_qt.py") { "src\sof_app\ui_qt.py" } else { "" }
+          if (-not $entry) { throw "ui_qt.py not found in sof_app\ or src\sof_app\" }
+          $icon  = if (Test-Path "sof_app\assets\icons\sof_trefoil.ico") { "sof_app\assets\icons\sof_trefoil.ico" } elseif (Test-Path "src\sof_app\assets\icons\sof_trefoil.ico") { "src\sof_app\assets\icons\sof_trefoil.ico" } else { "" }
+          if (-not $icon) { Write-Host "Icon not found; proceeding without one."; $icon = "" }
+          echo "entry=$entry" >> $env:GITHUB_OUTPUT
+          echo "icon=$icon"   >> $env:GITHUB_OUTPUT
+
+      - name: Build wheel/sdist (once on 3.12)
+        if: matrix.python-version == '3.12'
+        run: python -m build
+
+      - name: Build EXE with PyInstaller (once on 3.12)
+        if: matrix.python-version == '3.12'
+        shell: pwsh
+        run: |
+          $entry = "${{ steps.resolve.outputs.entry }}"
+          $icon  = "${{ steps.resolve.outputs.icon }}"
+          if ($icon) {
+            pyinstaller --noconfirm --clean `
+              --name "SOF-Calculator" `
+              --windowed `
+              --icon "$icon" `
+              "$entry"
+          } else {
+            pyinstaller --noconfirm --clean `
+              --name "SOF-Calculator" `
+              --windowed `
+              "$entry"
+          }
+
+      - name: SBOM + license manifest (build-time only)
+        if: matrix.python-version == '3.12'
+        shell: pwsh
+        run: |
+          python -m cyclonedx_py venv --output-format json -o dist\SBOM.json
+          pip-licenses --with-urls --format=json --output-file dist\THIRD_PARTY_LICENSES.json
+
+      - name: Offline runtime check (no sockets)
+        if: matrix.python-version == '3.12'
+        shell: pwsh
+        run: |
+          if (Test-Path ".\dist\SOF-Calculator\SOF-Calculator.exe") {
+            .\tools\release-verify.ps1 -ExePath ".\dist\SOF-Calculator\SOF-Calculator.exe" -OutDir ".\dist"
+          } else {
+            Write-Host "EXE not found; skipping offline check."
+          }
+
+      - name: Upload artifacts
+        if: matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sof-dist-${{ github.sha }}
+          path: |
+            dist/**
+            .\dist\SOF-Calculator\SOF-Calculator.exe
+          if-no-files-found: warn
