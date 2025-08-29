@@ -16,7 +16,7 @@ Notices:
 - uncertainties — BSD-3-Clause
 - openpyxl — MIT
 - PyInstaller bootloader — GPL-2.0 with exception (packaging tool)
-- (Icon) sof_trefoil.ico — <your attribution here or license>
+- sof_trefoil.ico — MIT
 
 PyQt6 licensing note:
 PyQt6 is GPL-3.0/commercial. If you distribute binaries that include PyQt6, you must
