@@ -107,7 +107,7 @@ powershell -ExecutionPolicy Bypass -File C:\sof_app\run_desktop.ps1
 . C:\sof_app\.venv\Scripts\Activate.ps1
 Set-ExecutionPolicy -Scope Process Bypass
 powershell -ExecutionPolicy Bypass -File C:\sof_app\run_desktop.ps1
-> ```
+```
 
 **Option C - From Repo File (dev)**
 
