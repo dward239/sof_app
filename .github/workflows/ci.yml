@@ -22,14 +22,26 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: "pip"
-
+        #
       - name: Install deps (editable)
         shell: pwsh
         run: |
           python -m pip install --upgrade pip
           pip install -e .
+          pip uninstall -y PyQt6 PyQt6-Qt6 PyQt6-sip || $true
+          pip install PySide6
           pip install pytest build pyinstaller cyclonedx-bom pip-licenses
 
+      - name: Offline runtime check (no sockets)
+        if: matrix.python-version == '3.12'
+        shell: pwsh
+        run: |
+          if (Test-Path ".\dist\SOF-Calculator\SOF-Calculator.exe") {
+            .\tools\release-verify.ps1 -ExePath ".\dist\SOF-Calculator\SOF-Calculator.exe" -OutDir ".\dist"
+          } else {
+            Write-Host "EXE not found; skipping offline check."
+          }
+    
       - name: Run tests
         run: pytest -q tests
 
