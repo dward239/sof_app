@@ -1,7 +1,0 @@
-﻿Folder PATH listing for volume Windows
-Volume serial number is C074-9DF2
-\SOF_APP\.GITHUB\WORKFLOWS
-    ci.yml
-    
-No subfolders exist 
-
