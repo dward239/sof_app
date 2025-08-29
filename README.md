@@ -104,17 +104,13 @@ python -m sof_app.ui_qt
 Set-ExecutionPolicy -Scope Process Bypass
 powershell -ExecutionPolicy Bypass -File C:\sof_app\run_desktop.ps1
 ```
-```powershell
-. C:\sof_app\.venv\Scripts\Activate.ps1
-Set-ExecutionPolicy -Scope Process Bypass
-powershell -ExecutionPolicy Bypass -File C:\sof_app\run_desktop.ps1
-```
 
 **Option C - From Repo File (dev)**
 
+```powershell
 . C:\sof_app\.venv\Scripts\Activate.ps1
 python C:\sof_app\src\sof_app\ui_qt.py
-
+```
 
 ---
 
