@@ -225,8 +225,8 @@ git push
 
 ## Versioning & releases
 
-* **Locked version:** `v0.1.1 (Revision 1)`
-* **Working copy:** may be `0.1.2-dev`
+* **Locked version:** `v0.1.4a (Revision 4)`
+* **Working copy:** may be `0.1.4-dev`
 * **Releases/EXEs are not committed** — upload installers to **GitHub Releases** instead.
   `.gitignore` excludes `release\`, `dist\`, `*.zip`, `*.exe`, `results\`.
 
