@@ -61,7 +61,7 @@ Co-60,2000,Bq/m^2,General,My Limits v1
 1. Launch:
 ```
 
-C:\Users\dylan\Documents\SOF\_Calculator\sof\_app.venv\Scripts\python.exe C:\Users\dylan\Documents\SOF\_Calculator\sof\_app\src\sof\_app\ui\_qt.py
+
 
 ```
 2. **Load files:** drag-drop or Browse… (Samples, Limits).
