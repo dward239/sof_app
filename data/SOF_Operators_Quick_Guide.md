@@ -125,11 +125,11 @@ Created via **Save Audit JSON…**. Includes:
 - **Aliases:** set once per session via environment:  
 ```
 
-\$env\:SOF\_ALIAS\_PATH = "C:\Users\dylan\Documents\SOF\_Calculator\sof\_app\data\nuclide\_aliases.csv"
+
 
 ```
 - **CSV format examples:** UI → **View examples…**.
-- **Settings remembered** in: `C:\Users\dylan\.sof_app_settings.json`
+- **Settings remembered** in:
 
 ---
 
