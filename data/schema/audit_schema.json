@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SOF calculation audit record",
+  "type": "object",
+  "required": [
+    "timestamp", "app_version", "file_integrity", "inputs", "results"
+  ],
+  "properties": {
+    "timestamp": {"type": "string", "format": "date-time"},
+    "app_version": {"type": "string"},
+    "integrity_capture_stage": {
+      "enum": ["calculation", "audit_export"]
+    },
+    "file_integrity": {
+      "type": "object",
+      "required": ["samples", "limits", "alias"]
+    },
+    "inputs": {
+      "type": "object",
+      "properties": {
+        "samples_path": {"type": ["string", "null"]},
+        "limits_path": {"type": ["string", "null"]},
+        "alias_path": {"type": ["string", "null"]},
+        "options": {"type": "object"}
+      }
+    },
+    "results": {
+      "type": "object",
+      "required": ["summary", "per_nuclide"],
+      "properties": {
+        "summary": {
+          "type": "object",
+          "required": ["sof_total", "status", "pass_limit"],
+          "properties": {
+            "sof_total": {"type": "number"},
+            "status": {"enum": ["PASS", "FAIL", "INCOMPLETE"]},
+            "pass_limit": {"type": ["boolean", "null"]},
+            "margin_to_1": {"type": ["number", "null"]}
+          }
+        },
+        "per_nuclide": {"type": "array", "items": {"type": "object"}}
+      }
+    }
+  }
+}

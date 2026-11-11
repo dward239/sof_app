@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sof-app"
+version = "0.2.0"
+description = "Sum of Fractions (SOF) calculator (limits vs measured concentrations)"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+dependencies = [
+  "numpy>=1.24",
+  "pandas>=2.0",
+  "pydantic>=2.6",
+  "pint>=0.23",
+  "uncertainties>=3.1",
+  "openpyxl>=3.1",
+  "matplotlib>=3.8"
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"sof_app" = ["assets/**", "data/*.csv"]
+
+[project.optional-dependencies]
+gui = ["PySide6>=6.6"]
+
+[project.scripts]
+sof-app-gui = "sof_app.ui_qt:main"
